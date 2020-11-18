@@ -35,7 +35,7 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = false;
+	private static final boolean offline = true;
 	
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -59,6 +59,8 @@ public class EarthquakeCityMap extends PApplet {
 
 	// A List of country markers
 	private List<Marker> countryMarkers;
+
+	public int brown = color(210,105,30);
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
@@ -80,7 +82,7 @@ public class EarthquakeCityMap extends PApplet {
 		//earthquakesURL = "test2.atom";
 		
 		// WHEN TAKING THIS QUIZ: Uncomment the next line
-		//earthquakesURL = "quiz1.atom";
+		earthquakesURL = "quiz1.atom";
 		
 		
 		// (2) Reading in earthquake data and geometric properties
@@ -141,17 +143,23 @@ public class EarthquakeCityMap extends PApplet {
 		textSize(12);
 		text("Earthquake Key", 50, 75);
 		
-		fill(color(255, 0, 0));
-		ellipse(50, 125, 15, 15);
-		fill(color(255, 255, 0));
-		ellipse(50, 175, 10, 10);
-		fill(color(0, 0, 255));
-		ellipse(50, 225, 5, 5);
+		fill(brown);
+		float x = 50f;
+		float y = 100f;
+		triangle(x, y-5, x-5, y+5, x+5, y+5);
+		fill(color(255, 255, 255));
+		x = 50f;
+		y = 130f;
+		ellipse(x, y, 10, 10);
+		x = 50f;
+		y = 160f;
+		rect(x-5, y-5, 10, 10);
 		
 		fill(0, 0, 0);
-		text("5.0+ Magnitude", 75, 125);
-		text("4.0+ Magnitude", 75, 175);
-		text("Below 4.0", 75, 225);
+		text("City Marker", 75, 100);
+		text("Land Quake", 75, 130);
+		text("Ocean Quake", 75, 160);
+		text("Size ~ Magnitude", 50, 190);
 	}
 
 	
@@ -161,8 +169,6 @@ public class EarthquakeCityMap extends PApplet {
 	// and returns true.  Notice that the helper method isInCountry will
 	// set this "country" property already.  Otherwise it returns false.
 	private boolean isLand(PointFeature earthquake) {
-		
-		
 		// Loop over all the country markers.  
 		// For each, check if the earthquake PointFeature is in the 
 		// country in m.  Notice that isInCountry takes a PointFeature
@@ -170,10 +176,11 @@ public class EarthquakeCityMap extends PApplet {
 		// If isInCountry ever returns true, isLand should return true.
 		for (Marker m : countryMarkers) {
 			// TODO: Finish this method using the helper method isInCountry
-			
+			if (isInCountry(earthquake, m)) {
+				return true;
+			}
 		}
-		
-		
+
 		// not inside any country
 		return false;
 	}
@@ -197,21 +204,27 @@ public class EarthquakeCityMap extends PApplet {
 		//     	and (2) if it is on land, that its country property matches 
 		//      the name property of the country marker.   If so, increment
 		//      the country's counter.
+		for (Marker cm : countryMarkers) {
+			String country = (String) cm.getProperty("name");
+			int countryQuakeCtr = 0;
+			for (Marker qm : quakeMarkers) {
+				if (((EarthquakeMarker) qm).isOnLand() && country.equals( ((LandQuakeMarker)qm).getCountry() )) {
+					countryQuakeCtr++;
+				}
+			}
+			if(countryQuakeCtr > 0) {
+				System.out.println(cm.getProperty("name") + ": " + countryQuakeCtr);
+			}
+		}
 		
-		// Here is some code you will find useful:
-		// 
-		//  * To get the name of a country from a country marker in variable cm, use:
-		//     String name = (String)cm.getProperty("name");
-		//  * If you have a reference to a Marker m, but you know the underlying object
-		//    is an EarthquakeMarker, you can cast it:
-		//       EarthquakeMarker em = (EarthquakeMarker)m;
-		//    Then em can access the methods of the EarthquakeMarker class 
-		//       (e.g. isOnLand)
-		//  * If you know your Marker, m, is a LandQuakeMarker, then it has a "country" 
-		//      property set.  You can get the country with:
-		//        String country = (String)m.getProperty("country");
-		
-		
+		// count all quakes not in a country i.e. in an ocean
+		int oceanQuakeCtr = 0;
+		for (Marker qm : quakeMarkers) {
+			if (!((EarthquakeMarker) qm).isOnLand()) {
+				oceanQuakeCtr++;
+			}
+		}
+		System.out.println("Ocaan Quakes: " + oceanQuakeCtr);
 	}
 	
 	

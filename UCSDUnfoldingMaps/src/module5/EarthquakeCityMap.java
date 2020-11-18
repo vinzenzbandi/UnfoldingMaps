@@ -35,7 +35,7 @@ public class EarthquakeCityMap extends PApplet {
 	private static final long serialVersionUID = 1L;
 
 	// IF YOU ARE WORKING OFFILINE, change the value of this variable to true
-	private static final boolean offline = false;
+	private static final boolean offline = true;
 	
 	/** This is where to find the local tiles, for working without an Internet connection */
 	public static String mbTilesString = "blankLight-1-3.mbtiles";
@@ -145,7 +145,19 @@ public class EarthquakeCityMap extends PApplet {
 	// 
 	private void selectMarkerIfHover(List<Marker> markers)
 	{
-		// TODO: Implement this method
+		// TODO: (done) Implement this method
+		if (lastSelected == null) 
+		{	
+			for (Marker marker : markers)
+			{
+				if(marker.isInside(map, mouseX, mouseY) ) 
+				{
+					lastSelected = (CommonMarker)marker;
+					lastSelected.setSelected(true);
+					break;
+				}
+			}
+		}
 	}
 	
 	/** The event handler for mouse clicks
@@ -159,6 +171,63 @@ public class EarthquakeCityMap extends PApplet {
 		// TODO: Implement this method
 		// Hint: You probably want a helper method or two to keep this code
 		// from getting too long/disorganized
+		if( lastClicked == null)
+		{
+			lastClicked = lastSelected;
+			lastClicked.setClicked(true);
+			hideMarkers();
+		}
+		else
+		{
+			lastClicked = null;
+			unhideMarkers();
+		}
+	}
+	
+	
+	private void hideMarkers() 
+	{
+		if (lastClicked instanceof EarthquakeMarker)
+		{
+			// Hide all not clicked earthquakes
+			for (Marker marker : quakeMarkers)
+			{
+				if (marker != lastClicked)
+				{
+					marker.setHidden(true);
+				}
+			}
+			// hide cities not in treat circle
+			double treatCircle = ((EarthquakeMarker) lastClicked).threatCircle() * 10;
+			for (Marker marker : cityMarkers)
+			{
+				double distToQuake = marker.getDistanceTo(lastClicked.getLocation());
+				if (distToQuake > treatCircle)
+				{
+					marker.setHidden(true);
+				}
+			}
+		}
+		else if(lastClicked instanceof CityMarker)
+		{
+			for (Marker marker : cityMarkers)
+			{
+				if (marker != lastClicked)
+				{
+					marker.setHidden(true);
+				}
+			}
+			// hide quakes not in treat circle
+			for (Marker marker : quakeMarkers)
+			{
+				double treatCircle = ((EarthquakeMarker) marker).threatCircle() * 10;
+				double distToCity = marker.getDistanceTo(lastClicked.getLocation());
+				if (treatCircle < distToCity)
+				{
+					marker.setHidden(true);
+				}
+			}
+		}
 	}
 	
 	

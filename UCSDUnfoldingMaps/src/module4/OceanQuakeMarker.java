@@ -30,6 +30,20 @@ public class OceanQuakeMarker extends EarthquakeMarker {
 		// and how it is set in the EarthquakeMarker constructor
 		
 		// TODO: Implement this method
+		float size = 15.0f;
+	    if (this.getMagnitude() < EarthquakeMarker.THRESHOLD_LIGHT) {
+	    	// minor earthquake
+	    	size = 5.0f;
+			pg.rect(x-size/2, y-size/2, size, size);
+	    }else if (this.getMagnitude() < EarthquakeMarker.THRESHOLD_MODERATE) {
+	    	// light earthquacke
+	    	size = 10.0f;
+			pg.rect(x-size/2, y-size/2, size, size);
+	    }else {
+	    	// moderate earthquake
+	    	size = 15.0f;
+			pg.rect(x-size/2, y-size/2, size, size);
+	    }
 		
 	}
 	

@@ -12,7 +12,6 @@ import processing.core.PGraphics;
  */
 public abstract class EarthquakeMarker extends SimplePointMarker
 {
-	
 	// Did the earthquake occur on land?  This will be set by the subclasses.
 	protected boolean isOnLand;
 
@@ -23,7 +22,6 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	// You will want to set this in the constructor, either
 	// using the thresholds below, or a continuous function
 	// based on magnitude. 
-  
 	
 	
 	/** Greater than or equal to this threshold is a moderate earthquake */
@@ -37,7 +35,9 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	public static final float THRESHOLD_DEEP = 300;
 
 	// ADD constants for colors
-
+	public static final int RED = 0xFF_FF_00_00;
+	public static final int YELLOW = 0xFF_FF_FF_00;
+	public static final int BLUE = 0xFF_00_00_FF;
 	
 	// abstract method implemented in derived classes
 	public abstract void drawEarthquake(PGraphics pg, float x, float y);
@@ -81,6 +81,16 @@ public abstract class EarthquakeMarker extends SimplePointMarker
 	// You might find the getters below helpful.
 	private void colorDetermine(PGraphics pg) {
 		//TODO: Implement this method
+		if (this.getDepth() < EarthquakeMarker.THRESHOLD_INTERMEDIATE) {
+	    	// shallow earthquake
+	    	pg.fill(YELLOW);
+	    }else if (this.getDepth() < EarthquakeMarker.THRESHOLD_DEEP) {
+	    	// Intermediate earthquacke
+	    	pg.fill(pg.color(BLUE));
+	    }else {
+	    	// deep earthquake
+	    	pg.fill(pg.color(RED));
+	    }
 	}
 	
 	
