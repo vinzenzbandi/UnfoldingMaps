@@ -30,6 +30,4 @@ public class OceanQuakeMarker extends EarthquakeMarker {
 	}
 	
 
-	
-
 }

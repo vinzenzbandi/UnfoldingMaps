@@ -10,7 +10,7 @@ import processing.core.PGraphics;
  *
  */
 // TODO: Implement the comparable interface
-public abstract class EarthquakeMarker extends CommonMarker
+public abstract class EarthquakeMarker extends CommonMarker implements Comparable<EarthquakeMarker>
 {
 	
 	// Did the earthquake occur on land?  This will be set by the subclasses.
@@ -166,8 +166,7 @@ public abstract class EarthquakeMarker extends CommonMarker
 	}
 	
 	public String getTitle() {
-		return (String) getProperty("title");	
-		
+		return (String) getProperty("title");
 	}
 	
 	public float getRadius() {
@@ -179,7 +178,22 @@ public abstract class EarthquakeMarker extends CommonMarker
 		return isOnLand;
 	}
 	
-
+	public int compareTo(EarthquakeMarker other) 
+	{
+		// TODO Auto-generated method stub
+		if (this.getMagnitude() < other.getMagnitude())
+		{
+			return -1;
+		}
+		else if (this.getMagnitude() > other.getMagnitude())
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 	
 	
 }
