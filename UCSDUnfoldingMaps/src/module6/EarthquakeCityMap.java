@@ -18,6 +18,7 @@ import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.utils.MapUtils;
 import parsing.ParseFeed;
 import processing.core.PApplet;
+import processing.core.PGraphics;
 
 /** EarthquakeCityMap
  * An application with an interactive map displaying earthquake data.
@@ -51,8 +52,19 @@ public class EarthquakeCityMap extends PApplet {
 	private String cityFile = "city-data.json";
 	private String countryFile = "countries.geo.json";
 	
+	// The Window
+	private int winHeight = 700;
+	private int winWidth = 900;
+	
 	// The map
 	private UnfoldingMap map;
+	private int mapPosX = 200;
+	private int mapPosY = 50;
+	private int mapHeight = 650;
+	private int mapWidth = 600;
+	
+	// The Overlay
+	private PGraphics overlay;
 	
 	// Markers for each city
 	private List<Marker> cityMarkers;
@@ -68,17 +80,19 @@ public class EarthquakeCityMap extends PApplet {
 	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
-		size(900, 700, OPENGL);
+		size(winWidth, winHeight, OPENGL);
 		if (offline) {
-		    map = new UnfoldingMap(this, 200, 50, 650, 600, new MBTilesMapProvider(mbTilesString));
+		    map = new UnfoldingMap(this, mapPosX, mapPosY, mapHeight, mapWidth, new MBTilesMapProvider(mbTilesString));
 		    earthquakesURL = "2.5_week.atom";  // The same feed, but saved August 7, 2015
 		}
 		else {
-			map = new UnfoldingMap(this, 200, 50, 650, 600, new Google.GoogleMapProvider());
+			map = new UnfoldingMap(this, mapPosX, mapPosY, mapHeight, mapWidth, new Google.GoogleMapProvider());
 			// IF YOU WANT TO TEST WITH A LOCAL FILE, uncomment the next line
 		    //earthquakesURL = "2.5_week.atom";
 		}
 		MapUtils.createDefaultEventDispatcher(this, map);
+		
+		overlay = createGraphics(winWidth, winHeight);
 		
 		// FOR TESTING: Set earthquakesURL to be one of the testing files by uncommenting
 		// one of the lines below.  This will work whether you are online or offline
@@ -86,7 +100,7 @@ public class EarthquakeCityMap extends PApplet {
 		//earthquakesURL = "test2.atom";
 		
 		// Uncomment this line to take the quiz
-		//earthquakesURL = "quiz2.atom";
+		earthquakesURL = "quiz2.atom";
 		
 		
 		// (2) Reading in earthquake data and geometric properties
@@ -118,7 +132,7 @@ public class EarthquakeCityMap extends PApplet {
 
 	    // could be used for debugging
 	    printQuakes();
-	    sortAndPrint(10);
+	    sortAndPrint(1000);
 	 		
 	    // (3) Add markers to map
 	    //     NOTE: Country markers are not added to the map.  They are used
@@ -134,10 +148,21 @@ public class EarthquakeCityMap extends PApplet {
 		background(0);
 		map.draw();
 		addKey();
-		
+		drawTitleOverlay();
 	}
 	
-	
+	// this method draws the title for the marker that the mouse is hovering over.
+	// it draws the title on an overlay PGrapics and displays that
+	private void drawTitleOverlay() {
+		overlay.clear();
+		if (lastSelected != null)
+		{
+			lastSelected.showTitle(overlay, lastSelected.getScreenPosition(map).x,  lastSelected.getScreenPosition(map).y);
+			image(overlay, 0, 0);
+		}
+	}
+
+
 	// Done: Add the method:
 	//   private void sortAndPrint(int numToPrint)
 	// and then call that method from setUp
@@ -224,6 +249,7 @@ public class EarthquakeCityMap extends PApplet {
 		for (Marker marker : cityMarkers) {
 			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
 				lastClicked = (CommonMarker)marker;
+				lastClicked.setClicked(true);
 				// Hide all the other earthquakes and hide
 				for (Marker mhide : cityMarkers) {
 					if (mhide != lastClicked) {
@@ -252,6 +278,7 @@ public class EarthquakeCityMap extends PApplet {
 			EarthquakeMarker marker = (EarthquakeMarker)m;
 			if (!marker.isHidden() && marker.isInside(map, mouseX, mouseY)) {
 				lastClicked = marker;
+				lastClicked.setClicked(true);
 				// Hide all the other earthquakes and hide
 				for (Marker mhide : quakeMarkers) {
 					if (mhide != lastClicked) {

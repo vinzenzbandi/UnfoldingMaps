@@ -53,6 +53,7 @@ public class CityMarker extends CommonMarker {
 	/** Show the title of the city if this marker is selected */
 	public void showTitle(PGraphics pg, float x, float y)
 	{
+		pg.beginDraw();
 		String name = getCity() + " " + getCountry() + " ";
 		String pop = "Pop: " + getPopulation() + " Million";
 		
@@ -68,6 +69,7 @@ public class CityMarker extends CommonMarker {
 		pg.text(pop, x+3, y - TRI_SIZE -18);
 		
 		pg.popStyle();
+		pg.endDraw();
 	}
 	
 	private String getCity()

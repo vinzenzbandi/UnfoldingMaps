@@ -96,6 +96,7 @@ public abstract class EarthquakeMarker extends CommonMarker implements Comparabl
 	/** Show the title of the earthquake if this marker is selected */
 	public void showTitle(PGraphics pg, float x, float y)
 	{
+		pg.beginDraw();
 		String title = getTitle();
 		pg.pushStyle();
 		
@@ -109,9 +110,8 @@ public abstract class EarthquakeMarker extends CommonMarker implements Comparabl
 		pg.fill(0);
 		pg.text(title, x + 3 , y +18);
 		
-		
 		pg.popStyle();
-		
+		pg.endDraw();
 	}
 
 	
