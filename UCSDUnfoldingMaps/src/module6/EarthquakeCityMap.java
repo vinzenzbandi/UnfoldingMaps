@@ -78,6 +78,10 @@ public class EarthquakeCityMap extends PApplet {
 	private CommonMarker lastSelected;
 	private CommonMarker lastClicked;
 	
+	// NEW IN MODULE 6
+	VScrollbar scrollBar;
+	float hidingTreshold;
+	
 	public void setup() {		
 		// (1) Initializing canvas and map tiles
 		size(winWidth, winHeight, OPENGL);
@@ -140,26 +144,35 @@ public class EarthquakeCityMap extends PApplet {
 	    map.addMarkers(quakeMarkers);
 	    map.addMarkers(cityMarkers);
 	    
+	    // New in Module 6
+	    scrollBar = new VScrollbar(50, 400, 20, 225, 9.5f, 18);
 	    
 	}  // End setup
-	
 	
 	public void draw() {
 		background(0);
 		map.draw();
 		addKey();
+		if(scrollBar.update(mouseX, mouseY, mousePressed)) {
+			hideLowMagQuakes();
+		}
 		drawTitleOverlay();
 	}
-	
+
 	// this method draws the title for the marker that the mouse is hovering over.
 	// it draws the title on an overlay PGrapics and displays that
 	private void drawTitleOverlay() {
+		overlay.beginDraw();
 		overlay.clear();
-		if (lastSelected != null)
+		// draw the scroll bar
+		addScrollBar();
+		// draw the title overlay
+		if (lastSelected != null && !lastSelected.isHidden())
 		{
 			lastSelected.showTitle(overlay, lastSelected.getScreenPosition(map).x,  lastSelected.getScreenPosition(map).y);
-			image(overlay, 0, 0);
 		}
+		overlay.endDraw();
+		image(overlay, 0, 0);
 	}
 
 
@@ -211,7 +224,7 @@ public class EarthquakeCityMap extends PApplet {
 		for (Marker m : markers) 
 		{
 			CommonMarker marker = (CommonMarker)m;
-			if (marker.isInside(map,  mouseX, mouseY)) {
+			if (!marker.isHidden() && marker.isInside(map,  mouseX, mouseY)) {
 				lastSelected = marker;
 				marker.setSelected(true);
 				return;
@@ -295,11 +308,26 @@ public class EarthquakeCityMap extends PApplet {
 			}
 		}
 	}
+
+	private void hideLowMagQuakes() {
+		// Hide all markers that are smaller than the treshold value
+		hidingTreshold = scrollBar.getValue();
+		for(Marker marker : quakeMarkers) {
+			EarthquakeMarker quakeMarker = (EarthquakeMarker)marker;
+			if (quakeMarker.getMagnitude() < hidingTreshold) {
+				marker.setHidden(true);
+			} else {
+				marker.setHidden(false);
+			}
+		}
+	}
 	
 	// loop over and unhide all markers
 	private void unhideMarkers() {
 		for(Marker marker : quakeMarkers) {
-			marker.setHidden(false);
+			EarthquakeMarker quakeMarker = (EarthquakeMarker)marker;
+			if (quakeMarker.getMagnitude() >= hidingTreshold)
+				marker.setHidden(false);
 		}
 			
 		for(Marker marker : cityMarkers) {
@@ -371,7 +399,31 @@ public class EarthquakeCityMap extends PApplet {
 		
 	}
 
-	
+	// helper method to draw the scroll bar area
+	private void addScrollBar() {
+		pushStyle();
+		int xbase = 25;
+		int ybase = 350;
+		
+		// draw white background
+		noStroke();
+		fill(255, 250, 240);
+		rect(xbase, ybase, 150, 300 );
+		
+		// display scroll bar
+		scrollBar.display(overlay);
+		
+		// add text 
+		fill(0);
+		String titleText = "Hide low magnitude\nquakes:";
+		text(titleText, xbase+20, ybase+25);
+		String treshold = "Treshold:\n" + scrollBar.getValue();
+		text(treshold, xbase+40, ybase+75);
+		String explenation = "Use the slider \nto adjust treshold.";
+		text(explenation, xbase+40, ybase+125);
+		
+		popStyle();
+	}
 	
 	// Checks whether this quake occurred on land.  If it did, it sets the 
 	// "country" property of its PointFeature to the country where it occurred

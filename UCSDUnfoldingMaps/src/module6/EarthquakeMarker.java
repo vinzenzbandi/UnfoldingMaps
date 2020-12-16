@@ -1,6 +1,9 @@
 package module6;
 
+import java.awt.Dimension;
+
 import de.fhpotsdam.unfolding.data.PointFeature;
+import jogamp.newt.awt.event.AWTParentWindowAdapter;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 
@@ -53,6 +56,10 @@ public abstract class EarthquakeMarker extends CommonMarker implements Comparabl
 		properties.put("radius", 2*magnitude );
 		setProperties(properties);
 		this.radius = 1.75f*getMagnitude();
+		if (getMagnitude() < 2.5)
+		{
+			this.hidden = true;
+		}
 	}
 	
 	// TODO: Add the method:
@@ -96,15 +103,22 @@ public abstract class EarthquakeMarker extends CommonMarker implements Comparabl
 	/** Show the title of the earthquake if this marker is selected */
 	public void showTitle(PGraphics pg, float x, float y)
 	{
+		int rightMargin = pg.width;
 		pg.beginDraw();
-		String title = getTitle();
+		String title = getTitle();		
 		pg.pushStyle();
 		
 		pg.rectMode(PConstants.CORNER);
 		
 		pg.stroke(110);
 		pg.fill(255,255,255);
-		pg.rect(x, y + 15, pg.textWidth(title) +6, 18, 5);
+		float rectWidth = pg.textWidth(title)+6;
+		if ((x + rectWidth) > rightMargin)
+		{
+			x = rightMargin - rectWidth;
+		}
+			
+		pg.rect(x, y + 15, rectWidth, 18, 5);
 		
 		pg.textAlign(PConstants.LEFT, PConstants.TOP);
 		pg.fill(0);

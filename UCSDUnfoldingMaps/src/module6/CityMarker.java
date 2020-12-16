@@ -62,7 +62,16 @@ public class CityMarker extends CommonMarker {
 		pg.fill(255, 255, 255);
 		pg.textSize(12);
 		pg.rectMode(PConstants.CORNER);
-		pg.rect(x, y-TRI_SIZE-39, Math.max(pg.textWidth(name), pg.textWidth(pop)) + 6, 39);
+		
+		// check if title rectangle exceeds window margin, adjust if it does
+		int rightMargin = pg.width;
+		float rectWidth = Math.max(pg.textWidth(name), pg.textWidth(pop)) + 6; 
+		if ((x + rectWidth) > rightMargin)
+		{
+			x = rightMargin - rectWidth;
+		}
+		
+		pg.rect(x, y-TRI_SIZE-39, rectWidth, 39);
 		pg.fill(0, 0, 0);
 		pg.textAlign(PConstants.LEFT, PConstants.TOP);
 		pg.text(name, x+3, y-TRI_SIZE-33);
